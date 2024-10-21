@@ -1,4 +1,4 @@
-openapi: "3.1.0"
+openapi: "3.0.3"
 
 info:
   version: 0.1.0
@@ -7,12 +7,36 @@ info:
     name: Apache 2.0
   
 paths:
-  /profiles:
+  /auth:
     post:
+      summary: Authorizes an API client, returns a token.
+      operationId: getApiToken
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRequest'
+        required: true
+      responses:
+        '201':
+          description: Authorized an API client successfully
+          content:
+            application/json:
+                schema:
+                  $ref: "#/components/schemas/AuthResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /profiles:
+    put:
       summary: Create a profiles
       operationId: createProfile
       tags:
-        - pets
+        - profiles
       requestBody:
         content:
           application/json:
@@ -22,12 +46,17 @@ paths:
       responses:
         '201':
           description: Created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+                
   /profiles/{profileID}:
     get:
       summary: Info for a specific profile
@@ -38,7 +67,7 @@ paths:
         - name: profileID
           in: path
           required: true
-          description: The id of the profile to retrieve
+          description: The ID of the profile to retrieve
           schema:
             type: string
       responses:
@@ -54,19 +83,305 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+    patch:
+      summary: Update specific profile by ID
+      operationId: updateProfileByID
+      tags:
+        - profiles
+      requestBody:
+        description: Update a profile, including roles, phone, and other details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        required: true
+      parameters:
+        - name: profileID
+          in: path
+          required: true
+          description: The ID of the profile to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileUpdateResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /category:
+    put:
+      summary: Create category
+      operationId: createCategory
+      tags:
+        - categories
+      requestBody:
+        description: Put a category, including name, description, and other details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      responses:
+        '200':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryPutResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    
+  /category/{categoryID}:
+    get:
+      summary: Get category by ID
+      operationId: getCategoryByID
+      tags:
+        - categories
+      parameters:
+        - name: categoryID
+          in: path
+          required: true
+          description: The ID of the category to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /categorytree:
+    get:
+      summary: Get category tree
+      operationId: getCategoryTree
+      tags:
+        - categories
+      responses:
+        '200':
+          description: Category tree retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryTreeResponse'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              
+  /product:
+    put:
+      summary: Create or update a product
+      operationId: createOrUpdateProduct
+      tags:
+        - products
+      requestBody:
+        description: Create a new product or update an existing one
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '200':
+          description: Product created or updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   schemas:
+
+    AuthRequest:
+      type: object
+      required:
+        - clientId
+        - clientSecret
+      properties:
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+
     Profile:
       type: object
       required:
-        - id
-        - name
+        - email
+        - phone
+        - roles
+        - firstName
+        - lastName
       properties:
-        id:
-          type: integer
-          format: int64
+        email:
+          type: string
+        phone:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    Category:
+      type: object
+      required:
+        - name
+        - displayName
+        - description
+        - parent
+        - attributes
+      properties:
         name:
           type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        parent:
+          type: string
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+
+    Product:
+      type: object
+      required:
+        - name
+        - description
+        - img
+        - onlineFlag
+        - isTerminal
+        - points
+        - weight
+        - categories
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        img:
+          type: string
+        onlineFlag:
+          type: boolean
+        isTerminal:
+          type: boolean
+        points:
+          type: number
+        weight:
+          type: number
+        categories:
+          type: array
+          items:
+            type: string
+
+    CategoryPutResponse:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+    
+    CategoryTreeResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        children:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              children:
+                type: array
+                items:
+                  type: object
+    
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+          nullable: true
+        id:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+          nullable: true
+        token:
+          type: string
+
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+          nullable: true
+        email:
+          type: string
+
+    ProfileUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+          nullable: true
+
     Error:
       type: object
       required:
