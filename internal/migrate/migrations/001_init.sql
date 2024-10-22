@@ -22,8 +22,7 @@ PRIMARY KEY (profile_id, role)
 create table warehouses (
 id int NOT NULL PRIMARY KEY,
 owner_id int NOT NULL references profiles(id),
-adress varchar(300) NOT NULL,
-volume int NOT NULL
+adress varchar(300) NOT NULL
 );
 
 create table clients (
@@ -46,7 +45,7 @@ date_created date NOT NULL
 create table devices (
 id int NOT NULL PRIMARY KEY,
 name varchar(100) NOT NULL,
-volume int NOT NULL
+score int NOT NULL
 );
 
 create table items_ordered (
@@ -59,16 +58,10 @@ UNIQUE (order_id, device_id)
 
 create table donations (
 id int NOT NULL PRIMARY KEY,
-volunteer_id int NOT NULL references volunteers(id),
-donation_score int NOT NULL --not sure whether it`s useful
-);
-
-create table items_donated (
-id int NOT NULL PRIMARY KEY,
-donation_id int NOT NULL references donations(id),
+donator_id int NOT NULL references volunteers(id),
 device_id int NOT NULL references devices(id),
-quantity int NOT NULL,
-UNIQUE (donation_id, device_id)
+warehouse_id int references warehouses(id),
+quantity int NOT NULL
 );
 
 create table inventory_records (
@@ -100,7 +93,6 @@ hash varchar(100) NOT NULL
 -- +migrate StatementBegin
 drop table api_clients;
 drop table device_parts_info;
-drop table items_donated;
 drop table items_ordered;
 drop table donations;
 drop table orders;
