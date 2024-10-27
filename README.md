@@ -1,5 +1,14 @@
 # `viter` - Striboh's core service
 
+## Installation
+
+Recommended way for installation is using our Docker container from
+GitHub Container Registry (`ghcr`):
+
+```shell
+docker pull ghcr.io/striboh/viter:latest
+```
+
 ## Development
 
 ### Setup local Postgres database
