@@ -12,29 +12,134 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// AuthRequest defines model for AuthRequest.
+type AuthRequest struct {
+	ClientId     string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
+}
+
+// AuthResponse defines model for AuthResponse.
+type AuthResponse struct {
+	Error   *string `json:"error"`
+	Success *bool   `json:"success,omitempty"`
+	Token   *string `json:"token,omitempty"`
+}
+
+// Category defines model for Category.
+type Category struct {
+	Attributes []struct {
+		Name *string `json:"name,omitempty"`
+		Type *string `json:"type,omitempty"`
+	} `json:"attributes"`
+	Description string `json:"description"`
+	DisplayName string `json:"displayName"`
+	Name        string `json:"name"`
+	Parent      string `json:"parent"`
+}
+
+// CategoryPutResponse defines model for CategoryPutResponse.
+type CategoryPutResponse struct {
+	Error   string `json:"error"`
+	Success bool   `json:"success"`
+}
+
+// CategoryTreeResponse defines model for CategoryTreeResponse.
+type CategoryTreeResponse struct {
+	Children *[]struct {
+		Children *[]map[string]interface{} `json:"children,omitempty"`
+		Name     *string                   `json:"name,omitempty"`
+	} `json:"children,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
 }
 
+// Product defines model for Product.
+type Product struct {
+	Categories  []string `json:"categories"`
+	Description string   `json:"description"`
+	Img         string   `json:"img"`
+	IsTerminal  bool     `json:"isTerminal"`
+	Name        string   `json:"name"`
+	OnlineFlag  bool     `json:"onlineFlag"`
+	Points      float32  `json:"points"`
+	Weight      float32  `json:"weight"`
+}
+
+// ProductResponse defines model for ProductResponse.
+type ProductResponse struct {
+	Error   *string `json:"error"`
+	Id      *string `json:"id,omitempty"`
+	Success *bool   `json:"success,omitempty"`
+}
+
 // Profile defines model for Profile.
 type Profile struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
+	Email     string   `json:"email"`
+	FirstName string   `json:"firstName"`
+	LastName  string   `json:"lastName"`
+	Phone     string   `json:"phone"`
+	Roles     []string `json:"roles"`
 }
+
+// ProfileResponse defines model for ProfileResponse.
+type ProfileResponse struct {
+	Email   *string `json:"email,omitempty"`
+	Error   *string `json:"error"`
+	Success *bool   `json:"success,omitempty"`
+}
+
+// ProfileUpdateResponse defines model for ProfileUpdateResponse.
+type ProfileUpdateResponse struct {
+	Error   *string `json:"error"`
+	Success *bool   `json:"success,omitempty"`
+}
+
+// GetApiTokenJSONRequestBody defines body for GetApiToken for application/json ContentType.
+type GetApiTokenJSONRequestBody = AuthRequest
+
+// CreateCategoryJSONRequestBody defines body for CreateCategory for application/json ContentType.
+type CreateCategoryJSONRequestBody = Category
+
+// CreateOrUpdateProductJSONRequestBody defines body for CreateOrUpdateProduct for application/json ContentType.
+type CreateOrUpdateProductJSONRequestBody = Product
 
 // CreateProfileJSONRequestBody defines body for CreateProfile for application/json ContentType.
 type CreateProfileJSONRequestBody = Profile
 
+// UpdateProfileByIDJSONRequestBody defines body for UpdateProfileByID for application/json ContentType.
+type UpdateProfileByIDJSONRequestBody = Profile
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Authorizes an API client, returns a token.
+	// (POST /auth)
+	GetApiToken(w http.ResponseWriter, r *http.Request)
+	// Create category
+	// (PUT /category)
+	CreateCategory(w http.ResponseWriter, r *http.Request)
+	// Get category by ID
+	// (GET /category/{categoryID})
+	GetCategoryByID(w http.ResponseWriter, r *http.Request, categoryID string)
+	// Get category tree
+	// (GET /categorytree)
+	GetCategoryTree(w http.ResponseWriter, r *http.Request)
+	// Create or update a product
+	// (PUT /product)
+	CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request)
 	// Create a profiles
-	// (POST /profiles)
+	// (PUT /profiles)
 	CreateProfile(w http.ResponseWriter, r *http.Request)
 	// Info for a specific profile
 	// (GET /profiles/{profileID})
 	ShowProfileByID(w http.ResponseWriter, r *http.Request, profileID string)
+	// Update specific profile by ID
+	// (PATCH /profiles/{profileID})
+	UpdateProfileByID(w http.ResponseWriter, r *http.Request, profileID string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -45,6 +150,87 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// GetApiToken operation middleware
+func (siw *ServerInterfaceWrapper) GetApiToken(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetApiToken(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateCategory operation middleware
+func (siw *ServerInterfaceWrapper) CreateCategory(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateCategory(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetCategoryByID operation middleware
+func (siw *ServerInterfaceWrapper) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "categoryID" -------------
+	var categoryID string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "categoryID", r.PathValue("categoryID"), &categoryID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "categoryID", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetCategoryByID(w, r, categoryID)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetCategoryTree operation middleware
+func (siw *ServerInterfaceWrapper) GetCategoryTree(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetCategoryTree(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateOrUpdateProduct operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateOrUpdateProduct(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // CreateProfile operation middleware
 func (siw *ServerInterfaceWrapper) CreateProfile(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +262,31 @@ func (siw *ServerInterfaceWrapper) ShowProfileByID(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ShowProfileByID(w, r, profileID)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateProfileByID operation middleware
+func (siw *ServerInterfaceWrapper) UpdateProfileByID(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "profileID" -------------
+	var profileID string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "profileID", r.PathValue("profileID"), &profileID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "profileID", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateProfileByID(w, r, profileID)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -205,8 +416,14 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	m.HandleFunc("POST "+options.BaseURL+"/profiles", wrapper.CreateProfile)
+	m.HandleFunc("POST "+options.BaseURL+"/auth", wrapper.GetApiToken)
+	m.HandleFunc("PUT "+options.BaseURL+"/category", wrapper.CreateCategory)
+	m.HandleFunc("GET "+options.BaseURL+"/category/{categoryID}", wrapper.GetCategoryByID)
+	m.HandleFunc("GET "+options.BaseURL+"/categorytree", wrapper.GetCategoryTree)
+	m.HandleFunc("PUT "+options.BaseURL+"/product", wrapper.CreateOrUpdateProduct)
+	m.HandleFunc("PUT "+options.BaseURL+"/profiles", wrapper.CreateProfile)
 	m.HandleFunc("GET "+options.BaseURL+"/profiles/{profileID}", wrapper.ShowProfileByID)
+	m.HandleFunc("PATCH "+options.BaseURL+"/profiles/{profileID}", wrapper.UpdateProfileByID)
 
 	return m
 }
