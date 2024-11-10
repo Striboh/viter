@@ -88,8 +88,8 @@ type Profile struct {
 
 // ProfileResponse defines model for ProfileResponse.
 type ProfileResponse struct {
-	Email   *string `json:"email,omitempty"`
 	Error   *string `json:"error"`
+	Id      *string `json:"id,omitempty"`
 	Success *bool   `json:"success,omitempty"`
 }
 
