@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// GetRoles retrieves roles list for given Profile
 func GetRoles(db *sqlx.DB, profileID uuid.UUID) ([]string, error) {
 	var roles []string
 
@@ -18,33 +19,36 @@ func GetRoles(db *sqlx.DB, profileID uuid.UUID) ([]string, error) {
 
 	return roles, nil
 }
-func AssignRoles(db *sqlx.DB, roles []string, profileID_str string) error {
-	query_str := "INSERT INTO role_records (profile_id, role) VALUES"
-	for i := range len(roles) - 1 {
-		query_str += fmt.Sprintf("\n('%s', '%s'),", profileID_str, roles[i])
-	}
-	query_str += fmt.Sprintf("\n('%s', '%s');", profileID_str, roles[len(roles)-1])
 
-	_, err := db.Exec(query_str)
+// AssignRoles assigns roles for newly created Profile
+func AssignRoles(db *sqlx.DB, roles []string, profileIDStr string) error {
+	queryStr := "INSERT INTO role_records (profile_id, role) VALUES"
+	for i := range len(roles) - 1 {
+		queryStr += fmt.Sprintf("\n('%s', '%s'),", profileIDStr, roles[i])
+	}
+	queryStr += fmt.Sprintf("\n('%s', '%s');", profileIDStr, roles[len(roles)-1])
+
+	_, err := db.Exec(queryStr)
 
 	if err != nil {
-		return fmt.Errorf("failed assigning roles for profile with id %s. entry: %w", profileID_str, err)
+		return fmt.Errorf("failed assigning roles for profile with id %s. entry: %w", profileIDStr, err)
 	}
 	return nil
 }
 
-func UpdateRoles(db *sqlx.DB, roles []string, profileID_str string) error {
-	query_str := "DELETE FROM role_records WHERE profile_id = '" + profileID_str + "';" +
+// UpdateRoles updates list of roles for given Profile
+func UpdateRoles(db *sqlx.DB, roles []string, profileIDStr string) error {
+	queryStr := "DELETE FROM role_records WHERE profile_id = '" + profileIDStr + "';" +
 		"\nINSERT INTO role_records (profile_id, role) VALUES"
 	for i := range len(roles) - 1 {
-		query_str += fmt.Sprintf("\n('%s', '%s'),", profileID_str, roles[i])
+		queryStr += fmt.Sprintf("\n('%s', '%s'),", profileIDStr, roles[i])
 	}
-	query_str += fmt.Sprintf("\n('%s', '%s');", profileID_str, roles[len(roles)-1])
+	queryStr += fmt.Sprintf("\n('%s', '%s');", profileIDStr, roles[len(roles)-1])
 
-	_, err := db.Exec(query_str)
+	_, err := db.Exec(queryStr)
 
 	if err != nil {
-		return fmt.Errorf("failed assigning roles for profile with id %s. entry: %w", profileID_str, err)
+		return fmt.Errorf("failed assigning roles for profile with id %s. entry: %w", profileIDStr, err)
 	}
 	return nil
 }

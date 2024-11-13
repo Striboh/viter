@@ -28,22 +28,22 @@ func NewServer(config config.Config, db *sqlx.DB) Server {
 
 // CreateProfile - (POST /profiles) handler
 func (s Server) CreateProfile(w http.ResponseWriter, r *http.Request) {
-	data_jsonstruct := Profile{}
-	err := json.NewDecoder(r.Body).Decode(&data_jsonstruct)
+	dataJSONstruct := Profile{}
+	err := json.NewDecoder(r.Body).Decode(&dataJSONstruct)
 	if err != nil {
 		slog.Error("failed reading json request", slog.Any("err", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	data_sqlstruct := models.Profile{
-		FirstName: data_jsonstruct.FirstName,
-		LastName:  data_jsonstruct.LastName,
-		Email:     data_jsonstruct.Email,
-		Phone:     data_jsonstruct.Phone,
-		Roles:     data_jsonstruct.Roles,
+	dataSQLstruct := models.Profile{
+		FirstName: dataJSONstruct.FirstName,
+		LastName:  dataJSONstruct.LastName,
+		Email:     dataJSONstruct.Email,
+		Phone:     dataJSONstruct.Phone,
+		Roles:     dataJSONstruct.Roles,
 	}
-	id_str, err := models.CreateProfile(s.db, data_sqlstruct)
+	idStr, err := models.CreateProfile(s.db, dataSQLstruct)
 	if err != nil {
 		slog.Error("failed to create profile", slog.Any("err", err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -54,7 +54,7 @@ func (s Server) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	resp := ProfileResponse{
 		Success: &success,
 		Error:   nil,
-		Id:      &id_str,
+		Id:      &idStr,
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -69,20 +69,20 @@ func (s Server) CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 // ShowProfileByID - (GET /profiles/{profileId}) handler
 func (s Server) ShowProfileByID(w http.ResponseWriter, r *http.Request, profileID string) {
-	resp_sqlstruct, err := models.GetProfile(s.db, profileID)
+	respSQLstruct, err := models.GetProfile(s.db, profileID)
 	if err != nil {
 		slog.Error("failed getting profile by id", slog.Any("err", err))
 	}
-	resp_jsonstruct := Profile{
-		Email:     resp_sqlstruct.Email,
-		Phone:     resp_sqlstruct.Phone,
-		Roles:     resp_sqlstruct.Roles,
-		FirstName: resp_sqlstruct.FirstName,
-		LastName:  resp_sqlstruct.LastName,
+	respJSONstruct := Profile{
+		Email:     respSQLstruct.Email,
+		Phone:     respSQLstruct.Phone,
+		Roles:     respSQLstruct.Roles,
+		FirstName: respSQLstruct.FirstName,
+		LastName:  respSQLstruct.LastName,
 	}
 	w.WriteHeader(http.StatusOK)
 
-	err = json.NewEncoder(w).Encode(resp_jsonstruct)
+	err = json.NewEncoder(w).Encode(respJSONstruct)
 	if err != nil {
 		slog.Error("failed writing json to response", slog.Any("err", err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -92,23 +92,23 @@ func (s Server) ShowProfileByID(w http.ResponseWriter, r *http.Request, profileI
 
 // UpdateProfileByID implements ServerInterface.
 func (s Server) UpdateProfileByID(w http.ResponseWriter, r *http.Request, profileID string) {
-	data_jsonstruct := Profile{}
-	err := json.NewDecoder(r.Body).Decode(&data_jsonstruct)
+	dataJSONstruct := Profile{}
+	err := json.NewDecoder(r.Body).Decode(&dataJSONstruct)
 	if err != nil {
 		slog.Error("failed reading json request", slog.Any("err", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	data_sqlstruct := models.Profile{
-		FirstName: data_jsonstruct.FirstName,
-		LastName:  data_jsonstruct.LastName,
-		Email:     data_jsonstruct.Email,
-		Phone:     data_jsonstruct.Phone,
-		Roles:     data_jsonstruct.Roles,
+	dataSQLstruct := models.Profile{
+		FirstName: dataJSONstruct.FirstName,
+		LastName:  dataJSONstruct.LastName,
+		Email:     dataJSONstruct.Email,
+		Phone:     dataJSONstruct.Phone,
+		Roles:     dataJSONstruct.Roles,
 	}
 
-	err = models.UpdateProfile(s.db, data_sqlstruct, profileID)
+	err = models.UpdateProfile(s.db, dataSQLstruct, profileID)
 	if err != nil {
 		slog.Error("failed updating profile", slog.Any("err", err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -139,8 +139,8 @@ func (s Server) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
 	panic("unimplemented")
 }
 
-// GetApiToken implements ServerInterface.
-func (s Server) GetApiToken(w http.ResponseWriter, r *http.Request) {
+// GetAPIToken implements ServerInterface.
+func (s Server) GetAPIToken(w http.ResponseWriter, r *http.Request) {
 	panic("unimplemented")
 }
 

@@ -10,7 +10,7 @@ paths:
   /auth:
     post:
       summary: Authorizes an API client, returns a token.
-      operationId: getApiToken
+      operationId: getAPIToken
       requestBody:
         content:
             application/json:

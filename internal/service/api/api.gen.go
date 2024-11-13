@@ -99,8 +99,8 @@ type ProfileUpdateResponse struct {
 	Success *bool   `json:"success,omitempty"`
 }
 
-// GetApiTokenJSONRequestBody defines body for GetApiToken for application/json ContentType.
-type GetApiTokenJSONRequestBody = AuthRequest
+// GetAPITokenJSONRequestBody defines body for GetAPIToken for application/json ContentType.
+type GetAPITokenJSONRequestBody = AuthRequest
 
 // CreateCategoryJSONRequestBody defines body for CreateCategory for application/json ContentType.
 type CreateCategoryJSONRequestBody = Category
@@ -118,7 +118,7 @@ type UpdateProfileByIDJSONRequestBody = Profile
 type ServerInterface interface {
 	// Authorizes an API client, returns a token.
 	// (POST /auth)
-	GetApiToken(w http.ResponseWriter, r *http.Request)
+	GetAPIToken(w http.ResponseWriter, r *http.Request)
 	// Create category
 	// (PUT /category)
 	CreateCategory(w http.ResponseWriter, r *http.Request)
@@ -151,11 +151,11 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-// GetApiToken operation middleware
-func (siw *ServerInterfaceWrapper) GetApiToken(w http.ResponseWriter, r *http.Request) {
+// GetAPIToken operation middleware
+func (siw *ServerInterfaceWrapper) GetAPIToken(w http.ResponseWriter, r *http.Request) {
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetApiToken(w, r)
+		siw.Handler.GetAPIToken(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -416,7 +416,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	m.HandleFunc("POST "+options.BaseURL+"/auth", wrapper.GetApiToken)
+	m.HandleFunc("POST "+options.BaseURL+"/auth", wrapper.GetAPIToken)
 	m.HandleFunc("PUT "+options.BaseURL+"/category", wrapper.CreateCategory)
 	m.HandleFunc("GET "+options.BaseURL+"/category/{categoryID}", wrapper.GetCategoryByID)
 	m.HandleFunc("GET "+options.BaseURL+"/categorytree", wrapper.GetCategoryTree)
