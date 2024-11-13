@@ -28,7 +28,6 @@ func NewServer(config config.Config, db *sqlx.DB) Server {
 
 // CreateProfile - (POST /profiles) handler
 func (s Server) CreateProfile(w http.ResponseWriter, r *http.Request) {
-
 	data_jsonstruct := Profile{}
 	err := json.NewDecoder(r.Body).Decode(&data_jsonstruct)
 	if err != nil {
@@ -70,7 +69,6 @@ func (s Server) CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 // ShowProfileByID - (GET /profiles/{profileId}) handler
 func (s Server) ShowProfileByID(w http.ResponseWriter, r *http.Request, profileID string) {
-
 	resp_sqlstruct, err := models.GetProfile(s.db, profileID)
 	if err != nil {
 		slog.Error("failed getting profile by id", slog.Any("err", err))
@@ -94,7 +92,6 @@ func (s Server) ShowProfileByID(w http.ResponseWriter, r *http.Request, profileI
 
 // UpdateProfileByID implements ServerInterface.
 func (s Server) UpdateProfileByID(w http.ResponseWriter, r *http.Request, profileID string) {
-
 	data_jsonstruct := Profile{}
 	err := json.NewDecoder(r.Body).Decode(&data_jsonstruct)
 	if err != nil {

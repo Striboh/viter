@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Profile represents a user's profile information and is managed by sqlx to retrieve info
 type Profile struct {
 	Id        uuid.UUID `db:"id"`
 	FirstName string    `db:"first_name"`
@@ -17,6 +18,7 @@ type Profile struct {
 	Roles     []string
 }
 
+// get Profile from db
 func GetProfile(db *sqlx.DB, id_str string) (Profile, error) {
 	var entry Profile
 	id, err := uuid.Parse(id_str)
@@ -34,6 +36,7 @@ func GetProfile(db *sqlx.DB, id_str string) (Profile, error) {
 	return entry, nil
 }
 
+// create Profile in db
 func CreateProfile(db *sqlx.DB, data Profile) (string, error) {
 	var id_str string
 	err := db.Get(&id_str, "INSERT INTO profiles (email, phone, first_name, last_name) "+
@@ -49,6 +52,7 @@ func CreateProfile(db *sqlx.DB, data Profile) (string, error) {
 	return "", nil
 }
 
+// update Profile in db
 func UpdateProfile(db *sqlx.DB, data Profile, id_str string) error {
 
 	_, err := db.Exec("UPDATE profiles SET email = '$1', phone = '$2', first_name = '$3', last_name = '$4' WHERE id = '$5'",
