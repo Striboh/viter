@@ -126,7 +126,6 @@ func (s Server) UpdateProfileByID(w http.ResponseWriter, r *http.Request, profil
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 }
 
 // CreateCategory implements ServerInterface.

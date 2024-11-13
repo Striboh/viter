@@ -54,7 +54,6 @@ func CreateProfile(db *sqlx.DB, data Profile) (string, error) {
 
 // UpdateProfile updates Profile in db
 func UpdateProfile(db *sqlx.DB, data Profile, idStr string) error {
-
 	_, err := db.Exec("UPDATE profiles SET email = '$1', phone = '$2', first_name = '$3', last_name = '$4' WHERE id = '$5'",
 		data.Email, data.Phone, data.FirstName, data.LastName, idStr)
 	if err != nil {
