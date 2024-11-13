@@ -10,7 +10,7 @@ paths:
   /auth:
     post:
       summary: Authorizes an API client, returns a token.
-      operationId: getApiToken
+      operationId: getAPIToken
       requestBody:
         content:
             application/json:
@@ -370,7 +370,7 @@ components:
         error:
           type: string
           nullable: true
-        email:
+        id:
           type: string
 
     ProfileUpdateResponse:
