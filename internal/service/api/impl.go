@@ -138,11 +138,6 @@ func (s Server) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
 	panic("unimplemented")
 }
 
-// GetAPIToken implements ServerInterface.
-func (s Server) GetAPIToken(w http.ResponseWriter, r *http.Request) {
-	panic("unimplemented")
-}
-
 // GetCategoryByID implements ServerInterface.
 func (s Server) GetCategoryByID(w http.ResponseWriter, r *http.Request, categoryID string) {
 	panic("unimplemented")
